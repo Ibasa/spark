@@ -1024,7 +1024,7 @@ namespace Microsoft.Spark.Worker.UnitTest
             using var inputStream = new MemoryStream();
             using var outputStream = new MemoryStream();
             // Write test data to the input stream.
-            var formatter = new BinaryFormatter();
+            var formatter = new Ibasa.Pikala.Pickler();
             var memoryStream = new MemoryStream();
 
             var inputs = new int[] { 0, 1, 2, 3, 4 };

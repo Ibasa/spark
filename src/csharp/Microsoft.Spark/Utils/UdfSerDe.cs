@@ -18,42 +18,10 @@ namespace Microsoft.Spark.Utils
     /// </summary>
     internal class UdfSerDe
     {
-        private static readonly ConcurrentDictionary<TypeData, Type> s_typeCache =
-            new ConcurrentDictionary<TypeData, Type>();
-
-        [Serializable]
-        internal sealed class TypeData : IEquatable<TypeData>
-        {
-            public string Name { get; set; }
-            public string AssemblyName { get; set; }
-            public string AssemblyFileName { get; set; }
-
-            public override int GetHashCode()
-            {
-                // Simply hash on the Type's Name, which should provide
-                // a "unique enough" hash code.
-                return Name.GetHashCode();
-            }
-
-            public override bool Equals(object obj)
-            {
-                return (obj is TypeData typeData) &&
-                    Equals(typeData);
-            }
-
-            public bool Equals(TypeData other)
-            {
-                return (other != null) &&
-                    (other.Name == Name) &&
-                    (other.AssemblyName == AssemblyName) &&
-                    (other.AssemblyFileName == AssemblyFileName);
-            }
-        }
-
         [Serializable]
         internal sealed class UdfData
         {
-            public TypeData TypeData { get; set; }
+            public Type TypeData { get; set; }
             public string MethodName { get; set; }
             public TargetData TargetData { get; set; }
 
@@ -80,7 +48,7 @@ namespace Microsoft.Spark.Utils
         [Serializable]
         internal sealed class TargetData
         {
-            public TypeData TypeData { get; set; }
+            public Type TypeData { get; set; }
             public FieldData[] Fields { get; set; }
 
             public override int GetHashCode()
@@ -115,7 +83,7 @@ namespace Microsoft.Spark.Utils
         [Serializable]
         internal sealed class FieldData
         {
-            public TypeData TypeData { get; set; }
+            public Type TypeData { get; set; }
             public string Name { get; set; }
             public object Value { get; set; }
 
@@ -147,7 +115,7 @@ namespace Microsoft.Spark.Utils
 
             var udfData = new UdfData()
             {
-                TypeData = SerializeType(method.DeclaringType),
+                TypeData = method.DeclaringType,
                 MethodName = method.Name,
                 TargetData = SerializeTarget(target)
             };
@@ -157,7 +125,9 @@ namespace Microsoft.Spark.Utils
 
         internal static Delegate Deserialize(UdfData udfData)
         {
-            Type udfType = DeserializeType(udfData.TypeData);
+            Console.Error.WriteLine("Deserialize UdfData (TypeData = {0}; MethodName = {1}; Target = {2})", udfData.TypeData, udfData.MethodName, udfData.TargetData);
+
+            Type udfType = udfData.TypeData;
             MethodInfo udfMethod = udfType.GetMethod(
                 udfData.MethodName,
                 BindingFlags.Instance |
@@ -192,7 +162,7 @@ namespace Microsoft.Spark.Utils
             }
 
             Type targetType = target.GetType();
-            TypeData targetTypeData = SerializeType(targetType);
+            Type targetTypeData = targetType;
 
             var fields = new List<FieldData>();
             foreach (FieldInfo field in targetType.GetFields(
@@ -205,7 +175,7 @@ namespace Microsoft.Spark.Utils
                 {
                     fields.Add(new FieldData()
                     {
-                        TypeData = SerializeType(field.FieldType),
+                        TypeData = field.FieldType,
                         Name = field.Name,
                         Value = field.GetValue(target)
                     });
@@ -232,7 +202,7 @@ namespace Microsoft.Spark.Utils
 
         private static object DeserializeTargetData(TargetData targetData)
         {
-            Type targetType = DeserializeType(targetData.TypeData);
+            Type targetType = targetData.TypeData;
             object target = FormatterServices.GetUninitializedObject(targetType);
 
             foreach (FieldData field in targetData.Fields ?? Enumerable.Empty<FieldData>())
@@ -246,35 +216,5 @@ namespace Microsoft.Spark.Utils
 
             return target;
         }
-
-        private static TypeData SerializeType(Type type)
-        {
-            return new TypeData()
-            {
-                Name = type.FullName,
-                AssemblyName = type.Assembly.FullName,
-                AssemblyFileName = Path.GetFileName(type.Assembly.Location)
-            };
-        }
-
-        private static Type DeserializeType(TypeData typeData) =>
-            s_typeCache.GetOrAdd(
-                typeData,
-                td =>
-                {
-                    Type type = AssemblyLoader.LoadAssembly(
-                        td.AssemblyName,
-                        td.AssemblyFileName).GetType(td.Name);
-                    if (type == null)
-                    {
-                        throw new FileNotFoundException(
-                            string.Format(
-                                "Assembly '{0}' file not found '{1}'",
-                                td.AssemblyName,
-                                td.AssemblyFileName));
-                    }
-
-                    return type;
-                });
     }
 }

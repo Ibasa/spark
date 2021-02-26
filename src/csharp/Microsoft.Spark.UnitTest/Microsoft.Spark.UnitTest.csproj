@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Microsoft.Spark\Microsoft.Spark.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="E:\VisualStudio\Projects\Ibasa\Pikala\src\bin\Debug\netstandard2.1\Ibasa.Pikala.dll" />
+  </ItemGroup>
+
 </Project>

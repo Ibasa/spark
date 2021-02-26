@@ -66,11 +66,11 @@ namespace Microsoft.Spark.RDD
         }
 
         /// <summary>
-        /// Deserializer using the BinaryFormatter.
+        /// Deserializer using Ibasa.Pikala.Pickler.
         /// </summary>
         private sealed class BinaryDeserializer : IDeserializer
         {
-            private readonly BinaryFormatter _formater = new BinaryFormatter();
+            private readonly Ibasa.Pikala.Pickler _formater = new Ibasa.Pikala.Pickler();
 
             public object Deserialize(Stream stream, int length)
             {

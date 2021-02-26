@@ -52,7 +52,7 @@ namespace Microsoft.Spark.Utils
             /// <summary>
             /// Type name of the UDF wrapper.
             /// </summary>
-            internal string TypeName { get; set; }
+            internal Type Type { get; set; }
 
             /// <summary>
             /// Number of children (UDF wrapper or UDF) this node is associated with.
@@ -159,7 +159,7 @@ namespace Microsoft.Spark.Utils
                 Udfs = udfs.ToArray()
             };
 
-            var formatter = new BinaryFormatter();
+            var formatter = new Ibasa.Pikala.Pickler();
             using (var stream = new MemoryStream())
             {
                 formatter.Serialize(stream, udfWrapperData);
@@ -204,7 +204,7 @@ namespace Microsoft.Spark.Utils
 
             var curNode = new UdfWrapperNode
             {
-                TypeName = udfData.TypeData.Name,
+                Type = udfData.TypeData,
                 NumChildren = fields.Length,
                 HasUdf = false
             };
@@ -232,7 +232,7 @@ namespace Microsoft.Spark.Utils
             int nodeIndex = 0;
             int udfIndex = 0;
             UdfWrapperNode node = udfWrapperData.UdfWrapperNodes[nodeIndex];
-            Type nodeType = Type.GetType(node.TypeName);
+            Type nodeType = node.Type;
             Delegate udf;
             if (nodeType == typeof(DataFrameGroupedMapUdfWrapper))
             {
@@ -291,7 +291,7 @@ namespace Microsoft.Spark.Utils
 
             byte[] serializedCommand = SerDe.ReadBytes(stream);
 
-            var bf = new BinaryFormatter();
+            var bf = new Ibasa.Pikala.Pickler();
             var ms = new MemoryStream(serializedCommand, false);
 
             return (UdfWrapperData)bf.Deserialize(ms);
@@ -325,7 +325,7 @@ namespace Microsoft.Spark.Utils
             ref int udfIndex)
         {
             UdfWrapperNode node = data.UdfWrapperNodes[nodeIndex++];
-            Type nodeType = Type.GetType(node.TypeName);
+            Type nodeType = node.Type;
 
             if (node.HasUdf)
             {

@@ -51,7 +51,7 @@ namespace Microsoft.Spark.Worker.Processor
                 }
             }
 
-            var formatter = new BinaryFormatter();
+            var formatter = new Ibasa.Pikala.Pickler();
             for (int i = 0; i < broadcastVars.Count; ++i)
             {
                 long bid = SerDe.ReadInt64(stream);

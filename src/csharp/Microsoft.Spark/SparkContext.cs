@@ -228,7 +228,7 @@ namespace Microsoft.Spark
         /// <returns>RDD representing distributed collection</returns>
         internal RDD<T> Parallelize<T>(IEnumerable<T> seq, int? numSlices = null)
         {
-            var formatter = new BinaryFormatter();
+            var formatter = new Ibasa.Pikala.Pickler();
             using var memoryStream = new MemoryStream();
 
             var values = new List<byte[]>();

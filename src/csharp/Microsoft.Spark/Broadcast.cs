@@ -234,7 +234,7 @@ namespace Microsoft.Spark
         /// <param name="stream">Stream to which the object is serialized</param>
         private void Dump(object value, Stream stream)
         {
-            var formatter = new BinaryFormatter();
+            var formatter = new Ibasa.Pikala.Pickler();
             formatter.Serialize(stream, value);
         }
     }

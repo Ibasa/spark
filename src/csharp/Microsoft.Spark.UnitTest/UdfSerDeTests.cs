@@ -155,7 +155,7 @@ namespace Microsoft.Spark.UnitTest
 
             using (var ms = new MemoryStream())
             {
-                var bf = new BinaryFormatter();
+                var bf = new Ibasa.Pikala.Pickler();
                 bf.Serialize(ms, udfData);
                 return ms.ToArray();
             }
@@ -165,7 +165,7 @@ namespace Microsoft.Spark.UnitTest
         {
             using (var ms = new MemoryStream(serializedUdf, false))
             {
-                var bf = new BinaryFormatter();
+                var bf = new Ibasa.Pikala.Pickler();
                 UdfSerDe.UdfData udfData = (UdfSerDe.UdfData)bf.Deserialize(ms);
                 return UdfSerDe.Deserialize(udfData);
             }

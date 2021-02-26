@@ -20,7 +20,7 @@ namespace Microsoft.Spark.Worker.Command
         [ThreadStatic]
         private static MemoryStream s_writeOutputStream;
         [ThreadStatic]
-        private static BinaryFormatter s_binaryFormatter;
+        private static Ibasa.Pikala.Pickler s_pickler;
 
         /// <summary>
         /// Executes the commands on the input data read from input stream
@@ -111,7 +111,7 @@ namespace Microsoft.Spark.Worker.Command
             switch (serializerMode)
             {
                 case CommandSerDe.SerializedMode.Byte:
-                    BinaryFormatter formatter = s_binaryFormatter ??= new BinaryFormatter();
+                    Ibasa.Pikala.Pickler formatter = s_pickler ??= new Ibasa.Pikala.Pickler();
                     formatter.Serialize(stream, message);
                     break;
                 case CommandSerDe.SerializedMode.None:

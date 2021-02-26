@@ -74,14 +74,14 @@ namespace Microsoft.Spark.Utils
             internal static Metadata Deserialize(string path)
             {
                 using FileStream fileStream = File.OpenRead(path);
-                var formatter = new BinaryFormatter();
+                var formatter = new Ibasa.Pikala.Pickler();
                 return (Metadata)formatter.Deserialize(fileStream);
             }
 
             internal void Serialize(string path)
             {
                 using FileStream fileStream = File.OpenWrite(path);
-                var formatter = new BinaryFormatter();
+                var formatter = new Ibasa.Pikala.Pickler();
                 formatter.Serialize(fileStream, this);
             }
 
